@@ -7,10 +7,12 @@ SaaS financeiro multiempresa do Método MGV para acompanhar lucro operacional, l
 O projeto está preparado para:
 
 - GitHub para versionamento.
-- Render para hospedar o Next.js.
-- Render PostgreSQL para banco de dados.
+- Vercel para hospedar o Next.js sem assinatura inicial.
+- Neon Free para banco PostgreSQL.
 
-Veja o guia completo em [outputs/deploy-render.md](outputs/deploy-render.md).
+Veja o guia gratuito em [outputs/deploy-gratis-vercel-neon.md](outputs/deploy-gratis-vercel-neon.md).
+
+O guia antigo do Render segue disponível em [outputs/deploy-render.md](outputs/deploy-render.md), caso você queira usar Render no futuro.
 
 Checklist operacional: [outputs/checklist-publicacao.md](outputs/checklist-publicacao.md).
 
