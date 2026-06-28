@@ -1,0 +1,233 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Prévia - MGV Dashboard</title>
+  <style>
+    :root {
+      --bg: #0b0c0d;
+      --panel: #151617;
+      --line: rgba(255,255,255,.08);
+      --gold: #d8b45a;
+      --gold2: #f1d37f;
+      --muted: #8d9097;
+      --text: #f4f4f5;
+      --green: #34d399;
+      --blue: #38bdf8;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background: radial-gradient(circle at 80% -10%, rgba(216,180,90,.14), transparent 32rem), var(--bg);
+      color: var(--text);
+      font-family: Arial, Helvetica, sans-serif;
+    }
+    .wrap { max-width: 1380px; margin: 0 auto; padding: 34px 22px 70px; }
+    .hero {
+      border: 1px solid var(--line);
+      border-radius: 30px;
+      background: linear-gradient(145deg, rgba(28,29,31,.96), rgba(16,17,18,.96));
+      padding: 34px;
+      box-shadow: 0 24px 80px rgba(0,0,0,.28);
+    }
+    .brand { display: flex; align-items: center; gap: 12px; font-weight: 800; letter-spacing: -.02em; }
+    .mark { display: grid; place-items: center; width: 42px; height: 42px; border-radius: 14px; background: linear-gradient(135deg, var(--gold2), var(--gold)); color: #17130a; }
+    .eyebrow { color: var(--gold); font-size: 11px; font-weight: 900; letter-spacing: .16em; text-transform: uppercase; }
+    h1, h2 { font-family: Georgia, "Times New Roman", serif; margin: 0; }
+    h1 { margin-top: 24px; font-size: clamp(38px, 6vw, 68px); line-height: .96; max-width: 840px; }
+    .lead { color: var(--muted); max-width: 760px; line-height: 1.7; margin: 20px 0 0; }
+    .grid { display: grid; gap: 18px; }
+    .screens { margin-top: 24px; grid-template-columns: repeat(2, minmax(0,1fr)); }
+    .screen {
+      overflow: hidden;
+      min-height: 460px;
+      border: 1px solid var(--line);
+      border-radius: 28px;
+      background: #101112;
+      box-shadow: 0 20px 60px rgba(0,0,0,.2);
+    }
+    .screen.large { grid-column: 1 / -1; }
+    .top { display: flex; align-items: center; justify-content: space-between; gap: 16px; padding: 20px 22px; border-bottom: 1px solid var(--line); background: rgba(255,255,255,.018); }
+    .top small { color: #676b73; }
+    .content { padding: 24px; }
+    .cards { grid-template-columns: repeat(4, minmax(0,1fr)); }
+    .card {
+      border: 1px solid var(--line);
+      border-radius: 20px;
+      background: linear-gradient(145deg, rgba(255,255,255,.045), rgba(255,255,255,.018));
+      padding: 18px;
+    }
+    .label { color: #8b8f98; font-size: 13px; }
+    .value { margin-top: 12px; font-size: 24px; font-weight: 800; letter-spacing: -.03em; }
+    .hint { margin-top: 12px; color: #62666d; font-size: 12px; }
+    .bars { display: flex; align-items: end; height: 220px; gap: 12px; padding: 30px 8px 0; border-bottom: 1px solid var(--line); }
+    .bar { flex: 1; min-height: 24px; border-radius: 9px 9px 0 0; background: linear-gradient(to top, rgba(155,123,45,.65), var(--gold2)); }
+    .split { grid-template-columns: 270px 1fr; min-height: 460px; }
+    .side { border-right: 1px solid var(--line); background: #101112; padding: 24px 18px; }
+    .nav { margin-top: 30px; display: grid; gap: 9px; }
+    .nav span { padding: 12px 14px; border-radius: 14px; color: #b4b7bd; background: rgba(255,255,255,.035); font-size: 14px; }
+    .nav span.active { color: white; background: rgba(216,180,90,.13); border: 1px solid rgba(216,180,90,.28); }
+    table { width: 100%; border-collapse: collapse; font-size: 13px; }
+    th { color: #666b74; text-transform: uppercase; font-size: 10px; letter-spacing: .12em; text-align: left; padding: 14px; }
+    td { border-top: 1px solid var(--line); padding: 15px 14px; color: #d7d9dd; }
+    .pill { display: inline-flex; padding: 6px 10px; border-radius: 999px; background: rgba(52,211,153,.1); color: var(--green); font-size: 12px; font-weight: 800; }
+    .button { display: inline-flex; min-height: 44px; align-items: center; justify-content: center; border-radius: 14px; padding: 0 18px; background: linear-gradient(135deg, var(--gold2), var(--gold)); color: #17130a; font-weight: 900; }
+    .form { display: grid; gap: 12px; margin-top: 18px; }
+    .input { height: 48px; border: 1px solid var(--line); border-radius: 14px; background: rgba(255,255,255,.035); color: #666b74; display: flex; align-items: center; padding: 0 14px; }
+    .login { display: grid; grid-template-columns: 1fr 420px; gap: 26px; align-items: center; min-height: 530px; }
+    .loginbox { border: 1px solid var(--line); border-radius: 28px; background: rgba(255,255,255,.035); padding: 28px; }
+    .report {
+      background: #f7f1e4;
+      color: #17130a;
+      border-color: rgba(0,0,0,.08);
+    }
+    .report .top { background: #111214; color: white; }
+    .report .content { background: #fbf8ef; }
+    .report .card { background: white; border-color: rgba(0,0,0,.06); color: #17130a; }
+    .report td, .report th { border-color: rgba(0,0,0,.08); color: #17130a; }
+    .footer { color: #676b73; text-align: center; margin-top: 34px; font-size: 13px; }
+    @media (max-width: 900px) {
+      .screens, .split, .login, .cards { grid-template-columns: 1fr; }
+      .side { border-right: 0; border-bottom: 1px solid var(--line); }
+      .screen.large { grid-column: auto; }
+    }
+  </style>
+</head>
+<body>
+  <main class="wrap">
+    <section class="hero">
+      <div class="brand"><span class="mark">↗</span><span>MGV Dashboard</span></div>
+      <p class="eyebrow" style="margin-top:28px">Prévia visual</p>
+      <h1>Gestão executiva do lucro incremental gerado pela consultoria.</h1>
+      <p class="lead">Esta é uma prévia estática do que já foi construído no sistema: autenticação, multiempresa, dashboard, clientes, indicadores financeiros, relatórios em PDF e área administrativa.</p>
+    </section>
+
+    <section class="grid screens">
+      <article class="screen large login">
+        <div class="content">
+          <p class="eyebrow">Login</p>
+          <h2 style="font-size:46px;margin-top:12px">Entrar no MGV Dashboard</h2>
+          <p class="lead">Acesso por perfil: administrador, consultor ou cliente.</p>
+        </div>
+        <div class="loginbox">
+          <div class="brand"><span class="mark">↗</span><span>MGV Dashboard</span></div>
+          <div class="form">
+            <div class="input">admin@mgv.com</div>
+            <div class="input">••••••••</div>
+            <span class="button">Acessar dashboard</span>
+          </div>
+        </div>
+      </article>
+
+      <article class="screen large">
+        <div class="grid split">
+          <aside class="side">
+            <div class="brand"><span class="mark">↗</span><span>MGV</span></div>
+            <nav class="nav">
+              <span class="active">Visão geral</span>
+              <span>Clientes</span>
+              <span>Indicadores</span>
+              <span>Relatórios</span>
+              <span>Equipe</span>
+              <span>Configurações</span>
+            </nav>
+          </aside>
+          <div class="content">
+            <p class="eyebrow">Visão executiva</p>
+            <h2 style="font-size:42px;margin-top:10px">Olá, Felipe.</h2>
+            <p class="lead" style="margin-top:10px">Evolução financeira da carteira.</p>
+            <div class="grid cards" style="margin-top:24px">
+              <div class="card"><div class="label">Clientes ativos</div><div class="value">4</div><div class="hint">Carteira com acesso</div></div>
+              <div class="card"><div class="label">Lucro operacional</div><div class="value">R$ 363 mil</div><div class="hint">Acumulado</div></div>
+              <div class="card"><div class="label">Lucro incremental</div><div class="value" style="color:var(--green)">R$ 69 mil</div><div class="hint">Acima do baseline</div></div>
+              <div class="card"><div class="label">Participação MGV</div><div class="value" style="color:var(--gold2)">R$ 18 mil</div><div class="hint">Calculada</div></div>
+            </div>
+            <div class="bars">
+              <div class="bar" style="height:46%"></div><div class="bar" style="height:52%"></div><div class="bar" style="height:58%"></div><div class="bar" style="height:66%"></div><div class="bar" style="height:76%"></div><div class="bar" style="height:84%"></div><div class="bar" style="height:93%"></div>
+            </div>
+          </div>
+        </div>
+      </article>
+
+      <article class="screen">
+        <div class="top"><div><b>Clientes</b><br><small>Cadastro, contrato e baseline</small></div><span class="pill">4 ativos</span></div>
+        <div class="content">
+          <div class="form">
+            <div class="input">Novo cliente</div>
+            <div class="input">Baseline fixo: R$ 42.000</div>
+            <div class="input">Participação: 20%</div>
+            <span class="button">Cadastrar cliente</span>
+          </div>
+          <table style="margin-top:24px">
+            <tr><th>Cliente</th><th>Baseline</th><th>MGV</th></tr>
+            <tr><td>Horizonte Solar</td><td>R$ 42 mil</td><td>20%</td></tr>
+            <tr><td>Lumina Tech</td><td>Média histórica</td><td>18%</td></tr>
+          </table>
+        </div>
+      </article>
+
+      <article class="screen">
+        <div class="top"><div><b>Indicadores financeiros</b><br><small>Lucro operacional mensal</small></div><span class="pill">Cálculo automático</span></div>
+        <div class="content">
+          <div class="grid cards" style="grid-template-columns:repeat(3,1fr)">
+            <div class="card"><div class="label">Lucro op.</div><div class="value">R$ 363 mil</div></div>
+            <div class="card"><div class="label">Elegível</div><div class="value" style="color:var(--green)">R$ 69 mil</div></div>
+            <div class="card"><div class="label">MGV</div><div class="value" style="color:var(--gold2)">R$ 18 mil</div></div>
+          </div>
+          <table style="margin-top:24px">
+            <tr><th>Mês</th><th>Lucro</th><th>Incremental</th><th>MGV</th></tr>
+            <tr><td>Mai/2026</td><td>R$ 58.600</td><td>R$ 16.600</td><td>R$ 3.320</td></tr>
+            <tr><td>Jun/2026</td><td>R$ 62.200</td><td>R$ 20.200</td><td>R$ 4.040</td></tr>
+            <tr><td>Jul/2026</td><td>R$ 67.500</td><td>R$ 25.500</td><td>R$ 5.100</td></tr>
+          </table>
+        </div>
+      </article>
+
+      <article class="screen report large">
+        <div class="top"><div><b>Relatório executivo MGV</b><br><small>Pronto para salvar como PDF</small></div><span class="button">Salvar como PDF</span></div>
+        <div class="content">
+          <h2 style="font-size:38px">Horizonte Solar</h2>
+          <p style="color:#6b6252;line-height:1.6">Evolução do lucro operacional, lucro incremental e participação da consultoria.</p>
+          <div class="grid cards" style="margin-top:24px">
+            <div class="card"><div class="label">Lucro operacional</div><div class="value">R$ 363 mil</div></div>
+            <div class="card"><div class="label">Incremental elegível</div><div class="value" style="color:#047857">R$ 69 mil</div></div>
+            <div class="card"><div class="label">Participação MGV</div><div class="value">R$ 18 mil</div></div>
+            <div class="card"><div class="label">Regra</div><div class="value">20%</div></div>
+          </div>
+          <table style="margin-top:24px">
+            <tr><th>Competência</th><th>Baseline</th><th>Lucro op.</th><th>MGV</th></tr>
+            <tr><td>Mai/2026</td><td>R$ 42 mil</td><td>R$ 58,6 mil</td><td>R$ 3,3 mil</td></tr>
+            <tr><td>Jun/2026</td><td>R$ 42 mil</td><td>R$ 62,2 mil</td><td>R$ 4 mil</td></tr>
+          </table>
+        </div>
+      </article>
+
+      <article class="screen">
+        <div class="top"><div><b>Equipe</b><br><small>Usuários e permissões</small></div><span class="pill">Admin</span></div>
+        <div class="content">
+          <div class="form">
+            <div class="input">Nome do usuário</div>
+            <div class="input">Perfil: Consultor</div>
+            <div class="input">Cliente vinculado</div>
+            <span class="button">Criar usuário</span>
+          </div>
+        </div>
+      </article>
+
+      <article class="screen">
+        <div class="top"><div><b>Configurações</b><br><small>Regras comerciais</small></div><span class="pill">Lucro operacional</span></div>
+        <div class="content">
+          <div class="form">
+            <div class="input">Cliente: Horizonte Solar</div>
+            <div class="input">Baseline: valor fixo</div>
+            <div class="input">Participação: 20% · Piso · Teto</div>
+            <span class="button">Atualizar regra</span>
+          </div>
+        </div>
+      </article>
+    </section>
+    <p class="footer">Prévia estática gerada a partir do estado atual do MGV Dashboard. Para navegar de verdade, rode o app localmente.</p>
+  </main>
+</body>
+</html>

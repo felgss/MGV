@@ -1,0 +1,303 @@
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model Tenant {
+  id          String   @id @default(cuid())
+  name        String
+  slug        String   @unique
+  document    String?
+  logoUrl     String?
+  timezone    String   @default("America/Sao_Paulo")
+  currency    String   @default("BRL")
+  status      String   @default("ACTIVE")
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  memberships      Membership[]
+  clients          Client[]
+  metrics          MetricDefinition[]
+  financialPeriods FinancialPeriod[]
+  contracts        Contract[]
+  calculations     MonthlyCalculation[]
+  auditLogs        AuditLog[]
+}
+
+model User {
+  id           String    @id @default(cuid())
+  name         String
+  email        String    @unique
+  passwordHash String
+  status       String    @default("ACTIVE")
+  lastLoginAt  DateTime?
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+
+  memberships Membership[]
+  sessions    Session[]
+  clientAccess ClientAccess[]
+  createdPeriods FinancialPeriod[] @relation("PeriodCreator")
+  auditLogs AuditLog[]
+}
+
+model Membership {
+  id        String   @id @default(cuid())
+  tenantId  String
+  userId    String
+  role      String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  tenant   Tenant    @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  user     User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  sessions Session[]
+
+  @@unique([tenantId, userId])
+  @@index([tenantId, role])
+}
+
+model Session {
+  id           String   @id @default(cuid())
+  tokenHash    String   @unique
+  userId       String
+  membershipId String
+  expiresAt    DateTime
+  createdAt    DateTime @default(now())
+
+  user       User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  membership Membership @relation(fields: [membershipId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([expiresAt])
+}
+
+model Client {
+  id         String    @id @default(cuid())
+  tenantId   String
+  name       String
+  legalName  String?
+  document   String?
+  email      String?
+  phone      String?
+  industry   String?
+  status     String    @default("ACTIVE")
+  startDate  DateTime?
+  notes      String?
+  createdAt  DateTime  @default(now())
+  updatedAt  DateTime  @updatedAt
+  archivedAt DateTime?
+
+  tenant           Tenant               @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  access           ClientAccess[]
+  businessUnits    BusinessUnit[]
+  financialPeriods FinancialPeriod[]
+  contracts        Contract[]
+  calculations     MonthlyCalculation[]
+
+  @@index([tenantId, status])
+  @@index([tenantId, name])
+}
+
+model ClientAccess {
+  id          String   @id @default(cuid())
+  tenantId    String
+  clientId    String
+  userId      String
+  accessLevel String   @default("READ")
+  createdAt   DateTime @default(now())
+
+  client Client @relation(fields: [clientId], references: [id], onDelete: Cascade)
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([clientId, userId])
+  @@index([tenantId, userId])
+}
+
+model BusinessUnit {
+  id        String   @id @default(cuid())
+  tenantId  String
+  clientId  String
+  name      String
+  code      String?
+  status    String   @default("ACTIVE")
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  client           Client            @relation(fields: [clientId], references: [id], onDelete: Cascade)
+  financialPeriods FinancialPeriod[]
+
+  @@index([tenantId, clientId])
+}
+
+model MetricDefinition {
+  id          String   @id @default(cuid())
+  tenantId    String
+  name        String
+  key         String
+  description String?
+  category    String
+  valueType   String   @default("CURRENCY")
+  aggregation String   @default("SUM")
+  isRequired  Boolean  @default(false)
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  tenant           Tenant           @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  entries          MetricEntry[]
+  baselinePolicies BaselinePolicy[]
+
+  @@unique([tenantId, key])
+  @@index([tenantId, isActive])
+}
+
+model FinancialPeriod {
+  id             String    @id @default(cuid())
+  tenantId       String
+  clientId       String
+  businessUnitId String?
+  year           Int
+  month          Int
+  status         String    @default("DRAFT")
+  submittedAt    DateTime?
+  approvedAt     DateTime?
+  lockedAt       DateTime?
+  createdById    String
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+
+  tenant       Tenant        @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  client       Client        @relation(fields: [clientId], references: [id], onDelete: Cascade)
+  businessUnit BusinessUnit? @relation(fields: [businessUnitId], references: [id], onDelete: SetNull)
+  createdBy    User          @relation("PeriodCreator", fields: [createdById], references: [id])
+  entries      MetricEntry[]
+  calculation MonthlyCalculation?
+
+  @@unique([clientId, businessUnitId, year, month])
+  @@index([tenantId, year, month])
+}
+
+model MetricEntry {
+  id                 String   @id @default(cuid())
+  tenantId           String
+  financialPeriodId  String
+  metricDefinitionId String
+  value              Decimal
+  source             String?
+  notes              String?
+  createdAt          DateTime @default(now())
+  updatedAt          DateTime @updatedAt
+
+  financialPeriod  FinancialPeriod @relation(fields: [financialPeriodId], references: [id], onDelete: Cascade)
+  metricDefinition MetricDefinition @relation(fields: [metricDefinitionId], references: [id])
+
+  @@unique([financialPeriodId, metricDefinitionId])
+  @@index([tenantId, metricDefinitionId])
+}
+
+model Contract {
+  id        String    @id @default(cuid())
+  tenantId  String
+  clientId  String
+  name      String
+  startDate DateTime
+  endDate   DateTime?
+  status    String    @default("ACTIVE")
+  currency  String    @default("BRL")
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+
+  tenant            Tenant            @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  client            Client            @relation(fields: [clientId], references: [id], onDelete: Cascade)
+  compensationRules CompensationRule[]
+  baselinePolicies  BaselinePolicy[]
+  calculations      MonthlyCalculation[]
+
+  @@index([tenantId, clientId, status])
+}
+
+model CompensationRule {
+  id           String    @id @default(cuid())
+  contractId   String
+  version      Int
+  percentage   Decimal
+  minimumFee   Decimal?
+  maximumFee   Decimal?
+  effectiveFrom DateTime
+  effectiveTo  DateTime?
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+
+  contract     Contract             @relation(fields: [contractId], references: [id], onDelete: Cascade)
+  calculations MonthlyCalculation[]
+
+  @@unique([contractId, version])
+}
+
+model BaselinePolicy {
+  id                 String   @id @default(cuid())
+  contractId         String
+  metricDefinitionId String
+  method             String
+  lookbackMonths     Int?
+  fixedValue         Decimal?
+  createdAt          DateTime @default(now())
+  updatedAt          DateTime @updatedAt
+
+  contract         Contract         @relation(fields: [contractId], references: [id], onDelete: Cascade)
+  metricDefinition MetricDefinition @relation(fields: [metricDefinitionId], references: [id])
+
+  @@index([contractId])
+}
+
+model MonthlyCalculation {
+  id                       String   @id @default(cuid())
+  tenantId                 String
+  clientId                 String
+  financialPeriodId        String   @unique
+  contractId               String
+  compensationRuleId       String
+  baselineValue            Decimal
+  actualValue              Decimal
+  incrementalProfit        Decimal
+  eligibleIncrementalProfit Decimal
+  consultancyShare         Decimal
+  clientShare              Decimal
+  currency                 String   @default("BRL")
+  formulaVersion           Int      @default(1)
+  calculationDetails       String
+  calculatedAt             DateTime @default(now())
+  createdAt                DateTime @default(now())
+
+  tenant           Tenant           @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  client           Client           @relation(fields: [clientId], references: [id], onDelete: Cascade)
+  financialPeriod  FinancialPeriod  @relation(fields: [financialPeriodId], references: [id], onDelete: Cascade)
+  contract         Contract         @relation(fields: [contractId], references: [id])
+  compensationRule CompensationRule @relation(fields: [compensationRuleId], references: [id])
+
+  @@index([tenantId, calculatedAt])
+}
+
+model AuditLog {
+  id         String   @id @default(cuid())
+  tenantId   String
+  userId     String?
+  action     String
+  entityType String
+  entityId   String
+  beforeData String?
+  afterData  String?
+  ipAddress  String?
+  createdAt  DateTime @default(now())
+
+  tenant Tenant @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  user   User?  @relation(fields: [userId], references: [id], onDelete: SetNull)
+
+  @@index([tenantId, createdAt])
+  @@index([entityType, entityId])
+}

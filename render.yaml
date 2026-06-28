@@ -1,0 +1,31 @@
+databases:
+  - name: mgv-dashboard-db
+    databaseName: mgv_dashboard
+    user: mgv_dashboard
+
+services:
+  - type: web
+    name: mgv-dashboard
+    runtime: node
+    buildCommand: npm install && npm run render:build
+    startCommand: npm run start
+    healthCheckPath: /api/health
+    envVars:
+      - key: NODE_VERSION
+        value: 22
+      - key: DATABASE_URL
+        fromDatabase:
+          name: mgv-dashboard-db
+          property: connectionString
+      - key: SESSION_COOKIE_NAME
+        value: mgv_session
+      - key: TENANT_NAME
+        value: Método MGV
+      - key: TENANT_SLUG
+        value: metodo-mgv
+      - key: ADMIN_NAME
+        value: Felipe Grossi
+      - key: ADMIN_EMAIL
+        value: admin@mgv.com
+      - key: ADMIN_PASSWORD
+        sync: false
